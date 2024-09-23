@@ -20,6 +20,7 @@ logfile = "merger"
 def merger(file_path, args):
     try:
         log_message(logfile, f"Processing apps: {file_path}", level="info")
+        start_time = datetime.datetime.now()
         
     except PermissionError:
         print(f"ERROR: Permission denied: {file_path}")
