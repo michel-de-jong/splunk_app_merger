@@ -199,7 +199,7 @@ def merger():
         os.makedirs(apps_merged_dir, exist_ok=True)
         copy_dir(os.path.join(splunk_home, "var", "run", "splunk", "deploy", "apps"), apps_merged_dir)
 
-        print(f"Merged apps can be found in {apps_merged_dir}")
+        print(f">>> Merged apps can be found in {apps_merged_dir} <<<")
         log_message(logfile, f"Merged apps can be found in {apps_merged_dir}", level="info")
 
         # Delete created content from shcluster/apps and deploy/apps
