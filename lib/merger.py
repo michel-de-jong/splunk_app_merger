@@ -7,7 +7,6 @@ import shutil
 import getpass
 import subprocess
 import datetime
-import readline
 import glob
 
 # import custom lib
@@ -18,15 +17,6 @@ from script_logger import log_message
 __name__ = "merger.py"
 __author__ = "Michel de Jong"
 logfile = "merger"
-
-def complete_path(text, state):
-    """Auto-completion function for file system paths using glob."""
-    return [x for x in glob.glob(text + '*')][state]
-
-def setup_readline():
-    """Set up readline for auto-completing file paths."""
-    readline.set_completer(complete_path)
-    readline.parse_and_bind("tab: complete")
 
 def prompt_user_confirmation(prompt):
     """Prompt the user with a yes/no question and return True for 'yes', False for 'no'."""
@@ -39,7 +29,7 @@ def prompt_user_confirmation(prompt):
 def prompt_user_choice(prompt, choices):
     """Prompt the user to choose between the given choices."""
     while True:
-        choice = input(f"{prompt} {choices}: ").lower()
+        choice = input(f"{prompt} \n").lower()
         if choice in choices:
             return choice
         print(f"Invalid input. Please choose from {choices}.")
@@ -52,6 +42,7 @@ def check_splunk_home():
     splunk_home = os.getenv('SPLUNK_HOME')
     while True:
         if splunk_home and prompt_user_confirmation(f"SPLUNK_HOME is set to {splunk_home}. Is this correct?"):
+            print(f"Confirmed")
             pass
         else:
             splunk_home = input("Please provide the correct path for SPLUNK_HOME: ")
@@ -63,14 +54,15 @@ def check_splunk_home():
             raise FileNotFoundError(f"The provided SPLUNK_HOME path does not exist: {splunk_home}. Please try again.")
 
 def get_dir(prompt_text):
-    """Prompt the user for a directory path with auto-completion enabled."""
+    """Prompt the user for a directory path and ensure it exists."""
     while True:
         dir_path = input(prompt_text)
-        if not os.path.exists(dir_path):
+        
+        if os.path.exists(dir_path):
             log_message(logfile, f"App directory set to {dir_path}", level="info")
             return dir_path
         else:
-            raise FileNotFoundError(f"The provided path does not exist: {dir_path}. Please try again.")
+            print(f"The provided path does not exist: {dir_path}. Please try again.")
 
 def get_credentials():
     """Prompt the user for Splunk login credentials."""
@@ -97,21 +89,25 @@ def manage_content(splunk_home, relative_path):
 
         log_message(logfile, f"Directory {relative_path} contains content.", level="info")
         print(f"Directory {relative_path} contains content.")
-        action = prompt_user_choice("Do you want to \n1) Delete or \n2) Backup the content?: ")
+
+        action = prompt_user_choice("Do you want to \n1) Delete or \n2) Backup the content?", ['1','2'])
 
         if action == '1':
             shutil.rmtree(sp_path)
             os.makedirs(sp_path)
             log_message(logfile, f"Content in {sp_path} deleted.", level="info")
             print(f"Content in {sp_path} has been deleted.")
+            return
+        
         elif action == '2':
             tmp_path = os.path.join(splunk_home, "tmp", relative_path.replace('/', "_"))
             os.makedirs(tmp_path, exist_ok=True)
             shutil.copytree(sp_path, tmp_path, dirs_exist_ok=True)
             shutil.rmtree(sp_path)
             os.makedirs(sp_path)
-            log_message(logfile, f"Content in {sp_path} backed up to {tmp_path} and deleted.", level="info")
-            print(f"Content has been backed up to {tmp_path} and deleted from {sp_path}.")
+            log_message(logfile, f"Content in {sp_path} backed up to {tmp_path} and deleted", level="info")
+            print(f"Content has been backed up to {tmp_path} and deleted from {sp_path}")
+            return
 
     except Exception as e:
         log_message(logfile, f"Error managing content in {sp_path}: {e}", level="error")
@@ -134,7 +130,8 @@ def apply_shcluster_bundle(splunk_home, uname, secret):
             f"{uname}:{secret}"
         ]
         subprocess.run(cmd, check=True)
-        log_message(logfile, "Shcluster-bundle applied successfully.", level="info")
+        log_message(logfile, "Shcluster-bundle applied successfully", level="info")
+        print("Shcluster-bundle applied successfully")
     except subprocess.CalledProcessError as e:
         log_message(logfile, f"Error applying shcluster-bundle: {e}", level="error")
         print(f"Error applying shcluster-bundle: {e}")
@@ -148,8 +145,8 @@ def remove_bundle_files(splunk_home):
         apps_deploy_path = os.path.join(splunk_home, "var", "run", "splunk", "deploy", "apps")
         for file_name in glob.glob(os.path.join(apps_deploy_path, "*.bundle")):
             os.remove(file_name)
-        log_message(logfile, "All *.bundle files removed from deploy/apps.", level="info")
-        print("All *.bundle files have been removed from deploy/apps.")
+        log_message(logfile, "All *.bundle files removed from deploy/apps", level="info")
+        print("All *.bundle files have been removed from deploy/apps")
     except Exception as e:
         log_message(logfile, f"Error removing *.bundle files: {e}", level="error")
         print(f"Error removing *.bundle files: {e}")
@@ -178,8 +175,6 @@ def merger():
     - Copy apps, apply shcluster bundle, and handle backups
     """
     try:
-        # Enable path auto completion
-        setup_readline()
 
         start_time = datetime.datetime.now()
         splunk_home = check_splunk_home()
@@ -203,6 +198,9 @@ def merger():
         apps_merged_dir = os.path.join(os.path.dirname(app_dir), "apps_merged")
         os.makedirs(apps_merged_dir, exist_ok=True)
         copy_dir(os.path.join(splunk_home, "var", "run", "splunk", "deploy", "apps"), apps_merged_dir)
+
+        print(f"Merged apps can be found in {apps_merged_dir}")
+        log_message(logfile, f"Merged apps can be found in {apps_merged_dir}", level="info")
 
         # Delete created content from shcluster/apps and deploy/apps
         shutil.rmtree(os.path.join(splunk_home, "etc", "shcluster", "apps"), ignore_errors=True)

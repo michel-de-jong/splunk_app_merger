@@ -17,9 +17,9 @@ __author__ = "Michel de Jong"
 def splunk_app_merger():
     try:
         # Check if the required modules are available
-        required_modules = ['shutil', 'datetime', 'datetime']
+        required_modules = ['shutil', 'datetime', 'subprocess', 'glob', 'getpass', 'os', 'sys']
         check_modules(required_modules)
-        
+
         # Merge configs
         from merger import merger
         merger()
