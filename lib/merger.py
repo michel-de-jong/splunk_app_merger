@@ -129,7 +129,7 @@ def apply_shcluster_bundle(splunk_home, uname, secret):
             "-auth",
             f"{uname}:{secret}"
         ]
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(cmd, check=True)
         log_message(logfile, "Shcluster-bundle applied successfully", level="info")
         print("Shcluster-bundle applied successfully")
     except subprocess.CalledProcessError as e:
@@ -159,7 +159,9 @@ def copy_dir(src, dest):
     try:
         if os.path.exists(dest):
             shutil.rmtree(dest)
-            shutil.copytree(src, dest, dirs_exist_ok=True)
+        # Create the destination directory if it doesn't exist
+        os.makedirs(dest, exist_ok=True)
+        shutil.copytree(src, dest, dirs_exist_ok=True)
         log_message(logfile, f"Content copied from {src} to {dest}.", level="info")
     except Exception as e:
         log_message(logfile, f"Error copying content: {e}", level="error")
