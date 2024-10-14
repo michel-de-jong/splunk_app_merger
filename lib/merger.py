@@ -88,9 +88,9 @@ def manage_content(splunk_home, relative_path):
             return
 
         log_message(logfile, f"Directory {relative_path} contains content.", level="info")
-        print(f"Directory {relative_path} contains content.")
+        print(f"\nDirectory {relative_path} contains content.")
 
-        action = prompt_user_choice("Do you want to \n1) Delete or \n2) Backup the content?", ['1','2'])
+        action = prompt_user_choice("Do you want to \n1) Delete \n2) Backup the content?", ['1','2'])
 
         if action == '1':
             shutil.rmtree(sp_path)
@@ -106,7 +106,7 @@ def manage_content(splunk_home, relative_path):
             shutil.rmtree(sp_path)
             os.makedirs(sp_path)
             log_message(logfile, f"Content in {sp_path} backed up to {tmp_path} and deleted", level="info")
-            print(f"Content has been backed up to {tmp_path} and deleted from {sp_path}")
+            print(f"Content has been backed up to {tmp_path} and deleted from {sp_path}\n")
             return
 
     except Exception as e:
@@ -129,7 +129,7 @@ def apply_shcluster_bundle(splunk_home, uname, secret):
             "-auth",
             f"{uname}:{secret}"
         ]
-        subprocess.run(cmd, check=True)
+        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         log_message(logfile, "Shcluster-bundle applied successfully", level="info")
         print("Shcluster-bundle applied successfully")
     except subprocess.CalledProcessError as e:
