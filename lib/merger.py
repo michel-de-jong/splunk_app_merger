@@ -129,7 +129,7 @@ def apply_shcluster_bundle(splunk_home, uname, secret):
             "-auth",
             f"{uname}:{secret}"
         ]
-        subprocess.run(cmd, check=True)
+        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         log_message(logfile, "Shcluster-bundle applied successfully", level="info")
         print("Shcluster-bundle applied successfully")
     except subprocess.CalledProcessError as e:
@@ -199,7 +199,7 @@ def merger():
         os.makedirs(apps_merged_dir, exist_ok=True)
         copy_dir(os.path.join(splunk_home, "var", "run", "splunk", "deploy", "apps"), apps_merged_dir)
 
-        print(f">>> Merged apps can be found in {apps_merged_dir} <<<")
+        print(f"\nMerged apps can be found in {apps_merged_dir}\n")
         log_message(logfile, f"Merged apps can be found in {apps_merged_dir}", level="info")
 
         # Delete created content from shcluster/apps and deploy/apps
