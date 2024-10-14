@@ -106,7 +106,7 @@ def manage_content(splunk_home, relative_path):
             shutil.rmtree(sp_path)
             os.makedirs(sp_path)
             log_message(logfile, f"Content in {sp_path} backed up to {tmp_path} and deleted", level="info")
-            print(f"Content has been backed up to {tmp_path} and deleted from {sp_path}\n")
+            print(f"Content has been backed up to {tmp_path} and deleted from {sp_path}")
             return
 
     except Exception as e:
@@ -131,10 +131,10 @@ def apply_shcluster_bundle(splunk_home, uname, secret):
         ]
         subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         log_message(logfile, "Shcluster-bundle applied successfully", level="info")
-        print("Shcluster-bundle applied successfully")
+        print("\nShcluster-bundle applied successfully")
     except subprocess.CalledProcessError as e:
         log_message(logfile, f"Error applying shcluster-bundle: {e}", level="error")
-        print(f"Error applying shcluster-bundle: {e}")
+        print(f"\nError applying shcluster-bundle: {e}")
         raise
 
 def remove_bundle_files(splunk_home):
