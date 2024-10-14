@@ -31,5 +31,5 @@ def splunk_app_merger():
         print(f"An error occurred: {e}")
 
 if __name__ == "splunk_app_merger.py":
-    parser = argparse.ArgumentParser(description="Python script to merge app/local + app/metadata/local.meta to app/default + app/metadata/default.meta. Local Splunk Enterprise installation is required. Please refer the README.md for more information.")
+    parser = argparse.ArgumentParser(description="Python script to merge app/local + app/metadata/local.meta to app/default + app/metadata/default.meta. Local Splunk Enterprise installation is required. Please refer the README.md for more information. \n Syntax: python3 splunk_app_merger.py")
     splunk_app_merger()
